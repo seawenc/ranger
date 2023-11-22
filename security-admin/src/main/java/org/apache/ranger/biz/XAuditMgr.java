@@ -52,8 +52,11 @@ public class XAuditMgr extends XAuditMgrBase {
 	RangerBizUtil rangerBizUtil;
 
 	public VXTrxLog getXTrxLog(Long id) {
-		checkAdminAccess();
-		return super.getXTrxLog(id);
+		if (rangerBizUtil.isAdmin() || rangerBizUtil.isKeyAdmin() || rangerBizUtil.isAuditAdmin() || rangerBizUtil.isAuditKeyAdmin()) {
+			return super.getXTrxLog(id);
+		} else {
+			throw restErrorUtil.createRESTException(HttpServletResponse.SC_FORBIDDEN, "User don't have permission to perform this action", true);
+		}
 	}
 
 	public VXTrxLog createXTrxLog(VXTrxLog vXTrxLog) {
@@ -75,13 +78,20 @@ public class XAuditMgr extends XAuditMgrBase {
 	}
 
 	public VXTrxLogList searchXTrxLogs(SearchCriteria searchCriteria) {
-		checkAdminAccess();
-		return super.searchXTrxLogs(searchCriteria);
+		if (rangerBizUtil.isAdmin() || rangerBizUtil.isKeyAdmin() || rangerBizUtil.isAuditAdmin() || rangerBizUtil.isAuditKeyAdmin()) {
+			return super.searchXTrxLogs(searchCriteria);
+		} else {
+			throw restErrorUtil.createRESTException(HttpServletResponse.SC_FORBIDDEN, "User don't have permission to perform this action", true);
+		}
+
 	}
 
 	public VXLong getXTrxLogSearchCount(SearchCriteria searchCriteria) {
-		checkAdminAccess();
-		return super.getXTrxLogSearchCount(searchCriteria);
+		if (rangerBizUtil.isAdmin() || rangerBizUtil.isKeyAdmin() || rangerBizUtil.isAuditAdmin() || rangerBizUtil.isAuditKeyAdmin()) {
+			return super.getXTrxLogSearchCount(searchCriteria);
+		} else {
+			throw restErrorUtil.createRESTException(HttpServletResponse.SC_FORBIDDEN, "User don't have permission to perform this action", true);
+		}
 	}
 
 	public VXAccessAudit createXAccessAudit(VXAccessAudit vXAccessAudit) {

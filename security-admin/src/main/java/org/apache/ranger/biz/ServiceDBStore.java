@@ -5067,9 +5067,11 @@ public class ServiceDBStore extends AbstractServiceStore {
 
 		// fetch policies maintained for the roles and groups belonging to the group
 		String groupName = searchFilter.getParam("group");
+		if (StringUtils.isBlank(groupName)) {
+			groupName = RangerConstants.GROUP_PUBLIC;
+		}
 		if (!StringUtils.isEmpty(groupName)) {
 			Set<String> groupNames = daoMgr.getXXGroupGroup().findGroupNamesByGroupName(groupName);
-			groupNames.add(RangerConstants.GROUP_PUBLIC);
 			groupNames.add(groupName);
 			Set<Long> processedSvcIdsForGroup = new HashSet<>();
 			Set<String> processedGroupsName = new HashSet<>();

@@ -165,6 +165,10 @@ public class XUserMgr extends XUserMgrBase {
 	public VXUser getXUserByUserName(String userName) {
 		VXUser vXUser=null;
 		vXUser=xUserService.getXUserByUserName(userName);
+		if(vXUser != null && !hasAccessToGetUserInfo(vXUser)) {
+			logger.info("Logged-In user is not allowed to access requested user data.");
+			throw restErrorUtil.createRESTException(HttpServletResponse.SC_FORBIDDEN, "Logged-In user is not allowed to access requested user data", true);
+		}
 		if(vXUser!=null && !hasAccessToModule(RangerConstants.MODULE_USER_GROUPS)){
 			vXUser=getMaskedVXUser(vXUser);
 		}
@@ -381,7 +385,7 @@ public class XUserMgr extends XUserMgrBase {
 			throw restErrorUtil.createRESTException("Please provide a valid first name.", MessageEnums.INVALID_INPUT_DATA);
 		}
 
-		checkAccess(vXUser.getName());
+		checkAccess(vXUser);
 		xaBizUtil.blockAuditorRoleUser();
 		VXPortalUser oldUserProfile = userMgr.getUserProfileByLoginId(vXUser
 				.getName());
@@ -792,11 +796,9 @@ public class XUserMgr extends XUserMgrBase {
 	public VXUser getXUser(Long id) {
 		VXUser vXUser=null;
 		vXUser=xUserService.readResourceWithOutLogin(id);
-		if(vXUser != null){
-			if(!hasAccessToGetUserInfo(vXUser)){
-				logger.info("Logged-In user is not allowed to access requested user data.");
-				throw restErrorUtil.create403RESTException("Logged-In user is not allowed to access requested user data.");
-			}
+		if(vXUser != null && !hasAccessToGetUserInfo(vXUser)){
+			logger.info("Logged-In user is not allowed to access requested user data.");
+			throw restErrorUtil.createRESTException(HttpServletResponse.SC_FORBIDDEN, "Logged-In user is not allowed to access requested user data", true);
 		}
 
 		if(vXUser!=null && !hasAccessToModule(RangerConstants.MODULE_USER_GROUPS)){
@@ -808,17 +810,20 @@ public class XUserMgr extends XUserMgrBase {
 	private boolean hasAccessToGetUserInfo(VXUser requestedVXUser) {
 		UserSessionBase userSession = ContextUtil.getCurrentUserSession();
 		if (userSession != null && userSession.getLoginId() != null) {
-			VXUser loggedInVXUser = xUserService.getXUserByUserName(userSession
-					.getLoginId());
-			if (loggedInVXUser != null) {
-				if (loggedInVXUser.getUserRoleList().size() == 1
-						&& loggedInVXUser.getUserRoleList().contains(
-						RangerConstants.ROLE_USER)) {
-
+			VXUser loggedInVXUser = xUserService.getXUserByUserName(userSession.getLoginId());
+			if (requestedVXUser != null && CollectionUtils.isNotEmpty(requestedVXUser.getUserRoleList()) && loggedInVXUser != null && loggedInVXUser.getUserRoleList().size() == 1) {
+				if (loggedInVXUser.getUserRoleList().contains(RangerConstants.ROLE_USER)) {
 					return requestedVXUser.getId().equals(loggedInVXUser.getId()) ? true : false;
-
-				}else{
-					return true;
+				} else if (loggedInVXUser.getUserRoleList().contains(RangerConstants.ROLE_KEY_ADMIN) || loggedInVXUser.getUserRoleList().contains(RangerConstants.ROLE_KEY_ADMIN_AUDITOR)) {
+					if (requestedVXUser.getUserRoleList().contains(RangerConstants.ROLE_KEY_ADMIN) || requestedVXUser.getUserRoleList().contains(RangerConstants.ROLE_KEY_ADMIN_AUDITOR) || requestedVXUser.getUserRoleList().contains(RangerConstants.ROLE_USER)) {
+						return true;
+					}
+				} else if (loggedInVXUser.getUserRoleList().contains(RangerConstants.ROLE_SYS_ADMIN) || loggedInVXUser.getUserRoleList().contains(RangerConstants.ROLE_ADMIN_AUDITOR)) {
+					if (loggedInVXUser.getUserRoleList().contains(RangerConstants.ROLE_SYS_ADMIN) && "rangerusersync".equalsIgnoreCase(userSession.getLoginId())) {
+						return true;
+					} else if (requestedVXUser.getUserRoleList().contains(RangerConstants.ROLE_SYS_ADMIN) || requestedVXUser.getUserRoleList().contains(RangerConstants.ROLE_ADMIN_AUDITOR) || requestedVXUser.getUserRoleList().contains(RangerConstants.ROLE_USER)) {
+						return true;
+					}
 				}
 			}
 		}
@@ -1374,12 +1379,11 @@ public class XUserMgr extends XUserMgrBase {
 		}
 	}
 
-	public void checkAccess(String loginID) {
+	public void checkAccess(VXUser vxUser) {
 		UserSessionBase session = ContextUtil.getCurrentUserSession();
 		if (session != null) {
-			if (!session.isUserAdmin() && !session.isKeyAdmin() && !session.getLoginId().equalsIgnoreCase(loginID)) {
-				throw restErrorUtil.create403RESTException("Operation" + " denied. LoggedInUser=" + (session != null ? session.getXXPortalUser().getId() : "Not Logged In")
-						+ " ,isn't permitted to perform the action.");
+			if (!hasAccessToGetUserInfo(vxUser)) {
+				throw restErrorUtil.create403RESTException("Operation" + " denied. LoggedInUser=" + (session != null ? session.getXXPortalUser().getId() : "Not Logged In") + " ,isn't permitted to perform the action.");
 			}
 		} else {
 			VXResponse vXResponse = new VXResponse();
@@ -1482,37 +1486,14 @@ public class XUserMgr extends XUserMgrBase {
 		UserSessionBase session = ContextUtil.getCurrentUserSession();
 		if (session != null && stringRolesList != null) {
 			if (!session.isUserAdmin() && !session.isKeyAdmin()) {
-				throw restErrorUtil.create403RESTException("Permission"
-						+ " denied. LoggedInUser="
-						+ (session != null ? session.getXXPortalUser().getId()
-						: "Not Logged In")
-						+ " ,isn't permitted to perform the action.");
+				throw restErrorUtil.create403RESTException("Permission denied. LoggedInUser=" + (session != null ? session.getXXPortalUser().getId() : "Not Logged In") + " ,isn't permitted to perform the action.");
 			} else {
-				if (!"rangerusersync".equals(session.getXXPortalUser()
-						.getLoginId())) {// new logic for rangerusersync user
-					if (session.isUserAdmin()
-							&& stringRolesList
-							.contains(RangerConstants.ROLE_KEY_ADMIN)) {
-						throw restErrorUtil.create403RESTException("Permission"
-								+ " denied. LoggedInUser="
-								+ (session != null ? session.getXXPortalUser()
-								.getId() : "")
-								+ " isn't permitted to perform the action.");
+				if (!"rangerusersync".equals(session.getXXPortalUser().getLoginId())) {// new logic for rangerusersync user
+					if (session.isUserAdmin() && (stringRolesList.contains(RangerConstants.ROLE_KEY_ADMIN) || stringRolesList.contains(RangerConstants.ROLE_KEY_ADMIN_AUDITOR))) {
+						throw restErrorUtil.create403RESTException("Permission denied. LoggedInUser=" + (session != null ? session.getXXPortalUser().getId() : "") + " isn't permitted to perform the action.");
+					} else if (session.isKeyAdmin() && (stringRolesList.contains(RangerConstants.ROLE_SYS_ADMIN) || stringRolesList.contains(RangerConstants.ROLE_ADMIN_AUDITOR))) {
+						throw restErrorUtil.create403RESTException("Permission denied. LoggedInUser=" + (session != null ? session.getXXPortalUser().getId() : "") + " isn't permitted to perform the action.");
 					}
-					if (session.isKeyAdmin()
-							&& stringRolesList
-							.contains(RangerConstants.ROLE_SYS_ADMIN)) {
-						throw restErrorUtil.create403RESTException("Permission"
-								+ " denied. LoggedInUser="
-								+ (session != null ? session.getXXPortalUser()
-								.getId() : "")
-								+ " isn't permitted to perform the action.");
-					}
-				} else {
-					logger.info("LoggedInUser="
-							+ (session != null ? session.getXXPortalUser()
-							.getId() : "")
-							+ " is permitted to perform the action.");
 				}
 			}
 		} else {
@@ -1531,8 +1512,8 @@ public class XUserMgr extends XUserMgrBase {
 				roleListNewProfile.add(vXString.getValue());
 			}
 		}
-		checkAccessRoles(roleListNewProfile);
 		VXUser vXUser=getXUser(userId);
+		checkAccessRoles(roleListNewProfile);
 		List<XXPortalUserRole> portalUserRoleList =null;
 		if(vXUser!=null && roleListNewProfile.size()>0){
 			VXPortalUser oldUserProfile = userMgr.getUserProfileByLoginId(vXUser.getName());
@@ -1557,9 +1538,10 @@ public class XUserMgr extends XUserMgrBase {
 				roleListNewProfile.add(vXString.getValue());
 			}
 		}
+		VXUser vXUser=getXUserByUserName(userName);
 		checkAccessRoles(roleListNewProfile);
-		if(userName!=null && roleListNewProfile.size()>0){
-			VXPortalUser oldUserProfile = userMgr.getUserProfileByLoginId(userName);
+		if(vXUser!=null && roleListNewProfile.size()>0){
+			VXPortalUser oldUserProfile = userMgr.getUserProfileByLoginId(vXUser.getName());
 			if(oldUserProfile!=null){
 				denySelfRoleChange(oldUserProfile.getLoginId());
 				updateUserRolesPermissions(oldUserProfile,roleListNewProfile);
@@ -1579,7 +1561,7 @@ public class XUserMgr extends XUserMgrBase {
 		if(vXUser==null){
 			throw restErrorUtil.createRESTException("Please provide a valid ID", MessageEnums.INVALID_INPUT_DATA);
 		}
-		checkAccess(vXUser.getName());
+		checkAccess(vXUser);
 		List<XXPortalUserRole> portalUserRoleList =null;
 		VXPortalUser oldUserProfile = userMgr.getUserProfileByLoginId(vXUser.getName());
 		if(oldUserProfile!=null){
@@ -1593,7 +1575,8 @@ public class XUserMgr extends XUserMgrBase {
 	public VXStringList getUserRolesByName(String userName) {
 		VXPortalUser vXPortalUser=null;
 		if(userName!=null && !userName.trim().isEmpty()){
-			checkAccess(userName);
+			VXUser vXUser=xUserService.getXUserByUserName(userName);
+			checkAccess(vXUser);
 			vXPortalUser = userMgr.getUserProfileByLoginId(userName);
 			if(vXPortalUser!=null && vXPortalUser.getUserRoleList()!=null){
 				List<XXPortalUserRole> portalUserRoleList = daoManager.getXXPortalUserRole().findByUserId(vXPortalUser.getId());
@@ -2780,7 +2763,7 @@ public class XUserMgr extends XUserMgrBase {
 				continue;
 			}
 
-			checkAccess(userName);
+			checkAccess(vXUser);
 			TransactionTemplate txTemplate = new TransactionTemplate(txManager);
 			txTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
 			try {
