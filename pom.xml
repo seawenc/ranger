@@ -281,7 +281,7 @@
                 <module>hbase-agent</module>
                 <module>hdfs-agent</module>
                 <module>hive-agent</module>
-                <module>knox-agent</module>
+<!--                <module>knox-agent</module>-->
                 <module>storm-agent</module>
                 <module>plugin-yarn</module>
                 <module>plugin-ozone</module>
@@ -305,7 +305,7 @@
                 <module>ranger-plugin-classloader</module>
                 <module>ranger-hive-plugin-shim</module>
                 <module>ranger-hbase-plugin-shim</module>
-                <module>ranger-knox-plugin-shim</module>
+<!--                <module>ranger-knox-plugin-shim</module>-->
                 <module>ranger-yarn-plugin-shim</module>
                 <module>ranger-ozone-plugin-shim</module>
                 <module>ranger-storm-plugin-shim</module>
@@ -320,8 +320,8 @@
                 <module>plugin-schema-registry</module>
                 <module>plugin-sqoop</module>
                 <module>ranger-sqoop-plugin-shim</module>
-                <module>plugin-kylin</module>
-                <module>ranger-kylin-plugin-shim</module>
+<!--                <module>plugin-kylin</module>-->
+<!--                <module>ranger-kylin-plugin-shim</module>-->
                 <module>plugin-elasticsearch</module>
                 <module>ranger-elasticsearch-plugin-shim</module>
                 <module>ranger-authn</module>
@@ -393,20 +393,20 @@
                 <module>ranger-hbase-plugin-shim</module>
             </modules>
         </profile>
-        <profile>
-            <id>ranger-knox-plugin</id>
-            <modules>
-                <module>agents-audit</module>
-                <module>agents-common</module>
-                <module>agents-cred</module>
-                <module>agents-installer</module>
-                <module>credentialbuilder</module>
-                <module>ranger-plugin-classloader</module>
-                <module>ranger-util</module>
-                <module>knox-agent</module>
-                <module>ranger-knox-plugin-shim</module>
-            </modules>
-        </profile>
+<!--        <profile>-->
+<!--            <id>ranger-knox-plugin</id>-->
+<!--            <modules>-->
+<!--                <module>agents-audit</module>-->
+<!--                <module>agents-common</module>-->
+<!--                <module>agents-cred</module>-->
+<!--                <module>agents-installer</module>-->
+<!--                <module>credentialbuilder</module>-->
+<!--                <module>ranger-plugin-classloader</module>-->
+<!--                <module>ranger-util</module>-->
+<!--                <module>knox-agent</module>-->
+<!--                <module>ranger-knox-plugin-shim</module>-->
+<!--            </modules>-->
+<!--        </profile>-->
         <profile>
             <id>ranger-storm-plugin</id>
             <modules>
@@ -520,20 +520,20 @@
                 <module>ranger-sqoop-plugin-shim</module>
             </modules>
         </profile>
-        <profile>
-            <id>ranger-kylin-plugin</id>
-            <modules>
-                <module>agents-audit</module>
-                <module>agents-common</module>
-                <module>agents-cred</module>
-                <module>agents-installer</module>
-                <module>credentialbuilder</module>
-                <module>ranger-plugin-classloader</module>
-                <module>ranger-util</module>
-                <module>plugin-kylin</module>
-                <module>ranger-kylin-plugin-shim</module>
-            </modules>
-        </profile>
+<!--        <profile>-->
+<!--            <id>ranger-kylin-plugin</id>-->
+<!--            <modules>-->
+<!--                <module>agents-audit</module>-->
+<!--                <module>agents-common</module>-->
+<!--                <module>agents-cred</module>-->
+<!--                <module>agents-installer</module>-->
+<!--                <module>credentialbuilder</module>-->
+<!--                <module>ranger-plugin-classloader</module>-->
+<!--                <module>ranger-util</module>-->
+<!--                <module>plugin-kylin</module>-->
+<!--                <module>ranger-kylin-plugin-shim</module>-->
+<!--            </modules>-->
+<!--        </profile>-->
         <profile>
             <id>ranger-elasticsearch-plugin</id>
             <modules>
@@ -608,7 +608,7 @@
                 <module>hbase-agent</module>
                 <module>hdfs-agent</module>
                 <module>hive-agent</module>
-                <module>knox-agent</module>
+<!--                <module>knox-agent</module>-->
                 <module>storm-agent</module>
                 <module>plugin-yarn</module>
                 <module>plugin-ozone</module>
@@ -631,7 +631,7 @@
                 <module>ranger-plugin-classloader</module>
                 <module>ranger-hive-plugin-shim</module>
                 <module>ranger-hbase-plugin-shim</module>
-                <module>ranger-knox-plugin-shim</module>
+<!--                <module>ranger-knox-plugin-shim</module>-->
                 <module>ranger-yarn-plugin-shim</module>
                 <module>ranger-ozone-plugin-shim</module>
                 <module>ranger-storm-plugin-shim</module>
@@ -645,8 +645,8 @@
                 <module>plugin-schema-registry</module>
                 <module>plugin-sqoop</module>
                 <module>ranger-sqoop-plugin-shim</module>
-                <module>plugin-kylin</module>
-                <module>ranger-kylin-plugin-shim</module>
+<!--                <module>plugin-kylin</module>-->
+<!--                <module>ranger-kylin-plugin-shim</module>-->
                 <module>plugin-presto</module>
                 <module>ranger-presto-plugin-shim</module>
                 <module>plugin-elasticsearch</module>
@@ -696,7 +696,7 @@
                 <module>hbase-agent</module>
                 <module>hdfs-agent</module>
                 <module>hive-agent</module>
-                <module>knox-agent</module>
+<!--                <module>knox-agent</module>-->
                 <module>storm-agent</module>
                 <module>plugin-yarn</module>
                 <module>plugin-ozone</module>
@@ -718,7 +718,7 @@
                 <module>ranger-plugin-classloader</module>
                 <module>ranger-hive-plugin-shim</module>
                 <module>ranger-hbase-plugin-shim</module>
-                <module>ranger-knox-plugin-shim</module>
+<!--                <module>ranger-knox-plugin-shim</module>-->
                 <module>ranger-yarn-plugin-shim</module>
                 <module>ranger-ozone-plugin-shim</module>
                 <module>ranger-storm-plugin-shim</module>
@@ -733,8 +733,8 @@
                 <module>plugin-schema-registry</module>
                 <module>plugin-sqoop</module>
                 <module>ranger-sqoop-plugin-shim</module>
-                <module>plugin-kylin</module>
-                <module>ranger-kylin-plugin-shim</module>
+<!--                <module>plugin-kylin</module>-->
+<!--                <module>ranger-kylin-plugin-shim</module>-->
                 <module>plugin-elasticsearch</module>
                 <module>ranger-elasticsearch-plugin-shim</module>
                 <module>ranger-authn</module>
