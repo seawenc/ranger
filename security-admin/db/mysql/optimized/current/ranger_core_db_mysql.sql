@@ -439,7 +439,7 @@ CREATE TABLE `x_trx_log_v2` (
   `parent_object_name` varchar(1024) DEFAULT NULL,
   `object_name` varchar(1024) DEFAULT NULL,
   `change_info` MEDIUMTEXT NULL DEFAULT NULL,
-  `trx_id` varchar(1024) DEFAULT NULL,
+  `trx_id` varchar(512) DEFAULT NULL,
   `action` varchar(255) DEFAULT NULL,
   `sess_id` varchar(512) DEFAULT NULL,
   `req_id` varchar(30) DEFAULT NULL,

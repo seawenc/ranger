@@ -78,28 +78,29 @@ public class UserGroupSync implements Runnable {
 				}
 			}
 
-			while (true) {
-				try {
-					if (LOG.isDebugEnabled()){
-						LOG.debug("Sleeping for [" + sleepTimeBetweenCycleInMillis + "] milliSeconds");
-					}
-					Thread.sleep(sleepTimeBetweenCycleInMillis);
-				} catch (InterruptedException e) {
-					LOG.error("Failed to wait for [" + sleepTimeBetweenCycleInMillis + "] milliseconds before attempting to synchronize UserGroup information", e);
-				}
-
-				try {
-					if (UserGroupSyncConfig.isUgsyncServiceActive()) {
-						LOG.info("Begin: update user/group from source==>sink");
-						syncUserGroup();
-						LOG.info("End: update user/group from source==>sink");
-					} else {
-						LOG.info("Sleeping for [" + sleepTimeBetweenCycleInMillis + "] milliSeconds as this server is running in passive mode");
-					}
-				} catch (Throwable t) {
-					LOG.error("Failed to synchronize UserGroup information. Error details: ", t);
-				}
-			}
+// 采用k8s -job 定时启动模式，代码内循环
+//			while (true) {
+//				try {
+//					if (LOG.isDebugEnabled()){
+//						LOG.debug("Sleeping for [" + sleepTimeBetweenCycleInMillis + "] milliSeconds");
+//					}
+//					Thread.sleep(sleepTimeBetweenCycleInMillis);
+//				} catch (InterruptedException e) {
+//					LOG.error("Failed to wait for [" + sleepTimeBetweenCycleInMillis + "] milliseconds before attempting to synchronize UserGroup information", e);
+//				}
+//
+//				try {
+//					if (UserGroupSyncConfig.isUgsyncServiceActive()) {
+//						LOG.info("Begin: update user/group from source==>sink");
+//						syncUserGroup();
+//						LOG.info("End: update user/group from source==>sink");
+//					} else {
+//						LOG.info("Sleeping for [" + sleepTimeBetweenCycleInMillis + "] milliSeconds as this server is running in passive mode");
+//					}
+//				} catch (Throwable t) {
+//					LOG.error("Failed to synchronize UserGroup information. Error details: ", t);
+//				}
+//			}
 
 		} catch (Throwable t) {
 			LOG.error("UserGroupSync thread got an error", t);
