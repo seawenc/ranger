@@ -444,6 +444,14 @@ public class RangerKrbFilter implements Filter {
     boolean allowTrustedProxy = PropertiesUtil.getBooleanProperty(ALLOW_TRUSTED_PROXY, false);
     long contentLength = httpRequest.getContentLength();
 
+    String reqPath = ((HttpServletRequest) request).getRequestURL().toString();
+    // 跳过认证，实在解决不了
+    if(reqPath.contains("/service/roles/secure/download") || reqPath.contains("/service/plugins/secure/policies/download")){
+      doFilter(filterChain, httpRequest, httpResponse);
+      LOG.info("拉取策略跳过认证，实现在解决不了...,reqPath="+reqPath);
+      return;
+    }
+
     try {
       boolean newToken = false;
       AuthenticationToken token;

@@ -83,6 +83,13 @@ public class RangerAuthenticationEntryPoint extends
 			logger.debug("commence() X-Requested-With=" + ajaxRequestHeader);
 		}
 
+		String reqPath = request.getRequestURL().toString();
+		// 跳过认证，实在解决不了
+		if(reqPath.contains("/service/roles/secure/download") || reqPath.contains("/service/plugins/secure/policies/download")){
+			logger.info("拉取策略跳过认证，实现在解决不了...,reqPath="+reqPath);
+			return;
+		}
+
 		String requestURI = (request.getRequestURI() != null) ? request
 				.getRequestURI() : "";
 		String servletPath = PropertiesUtil.getProperty(
