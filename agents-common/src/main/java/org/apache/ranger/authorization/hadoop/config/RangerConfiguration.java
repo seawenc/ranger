@@ -82,6 +82,9 @@ public class RangerConfiguration extends Configuration {
 
 			if (lurl == null ) {
 				File f = new File(fileName);
+				// 修复读取不到配置文件的bug
+				String rangerConfPath = System.getenv("RANGER_CONF_PATH");
+				f=f.exists()?f:new File(rangerConfPath+"/"+fileName);
 				if (f.exists()) {
 					try {
 						lurl=f.toURI().toURL();

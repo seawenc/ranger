@@ -277,10 +277,12 @@ public class RangerPluginConfig extends RangerConfiguration {
 
     // load service specific config overrides, if config files are available
     private void addResourcesForServiceName(String serviceType, String serviceName) {
-        if (StringUtils.isNotBlank(serviceType) && StringUtils.isNotBlank(serviceName)) {
-            String serviceAuditCfg    = "ranger-" + serviceType + "-" + serviceName + "-audit.xml";
-            String serviceSecurityCfg = "ranger-" + serviceType + "-" + serviceName + "-security.xml";
-            String serviceSslCfg      = "ranger-" + serviceType + "-" + serviceName + "-policymgr-ssl.xml";
+        if (StringUtils.isNotBlank(serviceType)) {
+            // 修复当serviceName=null时，无法加载配置文件问题
+            String serviceNamePart = StringUtils.isNotBlank(serviceName)? "-" + serviceName : "";
+            String serviceAuditCfg    = "ranger-" + serviceType + serviceNamePart + "-audit.xml";
+            String serviceSecurityCfg = "ranger-" + serviceType + serviceNamePart + "-security.xml";
+            String serviceSslCfg      = "ranger-" + serviceType + serviceNamePart + "-policymgr-ssl.xml";
 
             addResourceIfReadable(serviceAuditCfg);
             addResourceIfReadable(serviceSecurityCfg);

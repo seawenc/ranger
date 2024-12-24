@@ -28,13 +28,14 @@ public class ServiceKafkaConnectionMgr {
 	private static final String KEY_SASL_MECHANISM	= "sasl.mechanism";
 	private static final String KEY_KAFKA_KEYTAB    = "kafka.keytab";
 	private static final String KEY_KAFKA_PRINCIPAL = "kafka.principal";
+	public static final String KEY_JAAS_CONFIG = "sasl.jaas.config";
 
 	static public ServiceKafkaClient getKafkaClient(String serviceName,
 													Map<String, String> configs) throws Exception {
 		String error = getServiceConfigValidationErrors(configs);
 		if (StringUtils.isNotBlank(error)){
 			error =  "JAAS configuration missing or not correct in Ranger Kafka Service..." + error;
-			throw new Exception(error);
+			throw new Exception(error+",或者需要设置:sasl.jaas.config,则不需要keytab等配置");
 		}
 		ServiceKafkaClient serviceKafkaClient = new ServiceKafkaClient(serviceName, configs);
 		return serviceKafkaClient;
@@ -58,6 +59,9 @@ public class ServiceKafkaConnectionMgr {
 		String bootstrap_servers = configs.get(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG);
 		String security_protocol = configs.get(AdminClientConfig.SECURITY_PROTOCOL_CONFIG);
 		String sasl_mechanism = configs.get(KEY_SASL_MECHANISM);
+
+		String jaasConfig = configs.get(KEY_JAAS_CONFIG);
+
 		String kafka_keytab = configs.get(KEY_KAFKA_KEYTAB);
 		String kafka_principal = configs.get(KEY_KAFKA_PRINCIPAL);
 
@@ -81,21 +85,24 @@ public class ServiceKafkaConnectionMgr {
 			}
 		}
 
-		if (StringUtils.isEmpty(kafka_keytab)) {
-			if (StringUtils.isNotBlank(ret.toString())) {
-				ret.append(SEPARATOR).append(KEY_KAFKA_KEYTAB);
-			} else {
-				ret.append(KEY_KAFKA_KEYTAB);
+		if(StringUtils.isEmpty(jaasConfig)){
+			if (StringUtils.isEmpty(kafka_keytab)) {
+				if (StringUtils.isNotBlank(ret.toString())) {
+					ret.append(SEPARATOR).append(KEY_KAFKA_KEYTAB);
+				} else {
+					ret.append(KEY_KAFKA_KEYTAB);
+				}
+			}
+
+			if (StringUtils.isEmpty(kafka_principal)) {
+				if (StringUtils.isNotBlank(ret.toString())) {
+					ret.append(SEPARATOR).append(KEY_KAFKA_PRINCIPAL);
+				} else {
+					ret.append(KEY_KAFKA_PRINCIPAL);
+				}
 			}
 		}
 
-		if (StringUtils.isEmpty(kafka_principal)) {
-			if (StringUtils.isNotBlank(ret.toString())) {
-				ret.append(SEPARATOR).append(KEY_KAFKA_PRINCIPAL);
-			} else {
-				ret.append(KEY_KAFKA_PRINCIPAL);
-			}
-		}
 		return ret.toString();
 	}
 }

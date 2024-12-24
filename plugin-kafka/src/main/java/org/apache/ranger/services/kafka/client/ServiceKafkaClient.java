@@ -19,6 +19,7 @@
 
 package org.apache.ranger.services.kafka.client;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -35,9 +36,11 @@ import org.apache.kafka.clients.admin.TopicListing;
 import org.apache.kafka.clients.admin.ListTopicsResult;
 import org.apache.ranger.plugin.client.BaseClient;
 import org.apache.ranger.plugin.service.ResourceLookupContext;
+import org.apache.ranger.plugin.util.PasswordUtils;
 import org.apache.ranger.plugin.util.TimedEventUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static org.apache.ranger.services.kafka.client.ServiceKafkaConnectionMgr.KEY_JAAS_CONFIG;
 
 public class ServiceKafkaClient {
 	private static final Logger LOG = LoggerFactory.getLogger(ServiceKafkaClient.class);
@@ -227,7 +230,14 @@ public class ServiceKafkaClient {
 		return Integer.valueOf(rtrnVal);
 	}
 
-	private String getJAASConfig(Map<String,String> configs){
+	private String getJAASConfig(Map<String,String> configs) throws IOException {
+		// kafka插件只支持kerberos，以下增加用户名密码认证
+		if(configs.get(KEY_JAAS_CONFIG)!=null){
+			String jaasConfig = configs.get(KEY_JAAS_CONFIG);
+			jaasConfig=jaasConfig.replace("username=\"\"","username=\""+configs.get("username")+"\"");
+			jaasConfig=jaasConfig.replace("password=\"\"","password=\""+ PasswordUtils.decryptPassword(configs.get("password"))+"\"");
+			return jaasConfig;
+		}
 		String jaasConfig =  new StringBuilder()
 				.append(JAAS_KRB5_MODULE).append(" ")
 				.append(JAAS_USE_KEYTAB).append(" ")
