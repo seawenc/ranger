@@ -83,6 +83,7 @@ public class ElasticSearchAuditDestination extends AuditDestination {
     private String password;
     private String hosts;
     private Subject subject;
+    private static  RestHighLevelClient client = null;
 
     public ElasticSearchAuditDestination() {
         propPrefix = CONFIG_PREFIX;
@@ -99,7 +100,9 @@ public class ElasticSearchAuditDestination extends AuditDestination {
         this.index = getStringProperty(props, propPrefix + "." + CONFIG_INDEX, DEFAULT_INDEX);
         this.hosts = getHosts();
         LOG.info("Connecting to ElasticSearch: " + connectionString());
+        client = new RestHighLevelClient(getRestClientBuilder(hosts,protocol,user,password,port));
         getClient(); // Initialize client
+        clientRef.set(client);
     }
 
     private String connectionString() {
@@ -119,7 +122,6 @@ public class ElasticSearchAuditDestination extends AuditDestination {
             logStatusIfRequired();
             addTotalCount(events.size());
 
-            RestHighLevelClient client = getClient();
             if (null == client) {
                 // ElasticSearch is still not initialized. So need return error
                 addDeferredCount(events.size());
