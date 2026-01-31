@@ -19,13 +19,7 @@
 
 package org.apache.ranger.authorization.kafka.authorizer;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
@@ -199,22 +193,23 @@ public class RangerKafkaAuthorizer implements Authorizer {
       synchronized (RangerKafkaAuthorizer.class) {
         me = rangerPlugin;
         if (me == null) {
-          try {
-            // Possible to override JAAS configuration which is used by Ranger, otherwise
-            // SASL_PLAINTEXT is used, which force Kafka to use 'sasl_plaintext.KafkaServer',
-            // if it's not defined, then it reverts to 'KafkaServer' configuration.
-            final Object jaasContext = configs.get("ranger.jaas.context");
-            final String listenerName = (jaasContext instanceof String
-                && StringUtils.isNotEmpty((String) jaasContext)) ? (String) jaasContext
-                : SecurityProtocol.SASL_PLAINTEXT.name();
-            final String saslMechanism = SaslConfigs.GSSAPI_MECHANISM;
-            JaasContext context = JaasContext.loadServerContext(new ListenerName(listenerName), saslMechanism, configs);
-            MiscUtil.setUGIFromJAASConfig(context.name());
-            UserGroupInformation loginUser = MiscUtil.getUGILoginUser();
-            logger.info("LoginUser={}", loginUser);
-          } catch (Throwable t) {
-            logger.error("Error getting principal.", t);
-          }
+          // kafka不用hadoop这一套，不注释掉会有一大堆错误日志
+//          try {
+//            // Possible to override JAAS configuration which is used by Ranger, otherwise
+//            // SASL_PLAINTEXT is used, which force Kafka to use 'sasl_plaintext.KafkaServer',
+//            // if it's not defined, then it reverts to 'KafkaServer' configuration.
+//            final Object jaasContext = configs.get("ranger.jaas.context");
+//            final String listenerName = (jaasContext instanceof String
+//                && StringUtils.isNotEmpty((String) jaasContext)) ? (String) jaasContext
+//                : SecurityProtocol.SASL_PLAINTEXT.name();
+//            final String saslMechanism = SaslConfigs.GSSAPI_MECHANISM;
+//            JaasContext context = JaasContext.loadServerContext(new ListenerName(listenerName), saslMechanism, configs);
+//            MiscUtil.setUGIFromJAASConfig(context.name());
+//            UserGroupInformation loginUser = MiscUtil.getUGILoginUser();
+//            logger.info("LoginUser={}", loginUser);
+//          } catch (Throwable t) {
+//            logger.error("Error getting principal.", t);
+//          }
           rangerPlugin = new RangerBasePlugin("kafka", "kafka");
           logger.info("Calling plugin.init()");
           rangerPlugin.init();
@@ -222,6 +217,8 @@ public class RangerKafkaAuthorizer implements Authorizer {
           rangerPlugin.setResultProcessor(auditHandler);
         }
       }
+    }else{
+      auditHandler= (RangerKafkaAuditHandler) rangerPlugin.getResultProcessor();
     }
   }
 
@@ -253,8 +250,9 @@ public class RangerKafkaAuthorizer implements Authorizer {
     if (CollectionUtils.isEmpty(actions)) {
       return Collections.emptyList();
     }
+    logger.debug("wrappedAuthorization.初始化权限------------------");
     String userName = requestContext.principal() == null ? null : requestContext.principal().getName();
-    Set<String> userGroups = MiscUtil.getGroupsForRequestUser(userName);
+    Set<String> userGroups = new HashSet<>(); //MiscUtil.getGroupsForRequestUser(userName);
     String hostAddress = requestContext.clientAddress() == null ? null : requestContext.clientAddress().getHostAddress();
     String ip = StringUtils.isNotEmpty(hostAddress) && hostAddress.charAt(0) == '/' ? hostAddress.substring(1) : hostAddress;
     Date eventTime = new Date();

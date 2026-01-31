@@ -108,7 +108,7 @@ public class ScriptEngineUtil {
 
                 creator = creatorClass.newInstance();
             } catch (Throwable t) {
-                LOG.warn("initScriptEngineCreator(): failed to instantiate engine creator {}", creatorClsName, t);
+                LOG.warn("initScriptEngineCreator(): failed to instantiate engine creator {}", creatorClsName);
             }
 
             if (creator == null) {
@@ -133,7 +133,6 @@ public class ScriptEngineUtil {
 
             if (engine != null) {
                 SCRIPT_ENGINE_CREATOR = creator;
-
                 break;
             }
         }
