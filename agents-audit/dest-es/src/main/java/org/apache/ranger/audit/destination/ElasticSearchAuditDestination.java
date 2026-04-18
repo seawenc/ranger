@@ -84,6 +84,7 @@ public class ElasticSearchAuditDestination extends AuditDestination {
     public static final String CONFIG_INDEX = "index";
     public static final String CONFIG_PREFIX = "ranger.audit.elasticsearch";
     public static final String DEFAULT_INDEX = "ranger_audits";
+    private static  RestHighLevelClient client = null;
 
     private String index = CONFIG_INDEX;
     private final AtomicReference<RestHighLevelClient> clientRef = new AtomicReference<>(null);
@@ -110,7 +111,9 @@ public class ElasticSearchAuditDestination extends AuditDestination {
         this.hosts = getHosts();
 
         LOG.info("Connecting to ElasticSearch: {}", connectionString());
+        client = new RestHighLevelClient(getRestClientBuilder(hosts,protocol,user,password,port));
         getClient(); // Initialize client
+        clientRef.set(client);
     }
 
     private String connectionString() {
@@ -130,7 +133,7 @@ public class ElasticSearchAuditDestination extends AuditDestination {
             logStatusIfRequired();
             addTotalCount(events.size());
 
-            RestHighLevelClient client = getClient();
+//            RestHighLevelClient client = getClient();
             if (null == client) {
                 // ElasticSearch is still not initialized. So need return error
                 addDeferredCount(events.size());

@@ -25,6 +25,7 @@ import com.sun.jersey.api.client.ClientResponse;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.security.AccessControlException;
+import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.http.HttpStatus;
 import org.apache.ranger.admin.client.datatype.RESTResponse;
 import org.apache.ranger.audit.provider.MiscUtil;
@@ -61,7 +62,12 @@ public class RangerAdminRESTClient extends AbstractRangerAdminClient {
 	private String           rangerAdminCookieName;
 	private Cookie           sessionId            = null;
 	private final String     pluginCapabilities   = Long.toHexString(new RangerPluginCapability().getPluginCapabilities());
-
+	//新增了是否使用安全模式的标志位(false表示不关闭认证)
+	private boolean   useSecureModeForPolicyDownload = false;
+	//新增一般认证方法
+	protected boolean shouldUseSecureMode() {
+		return useSecureModeForPolicyDownload && UserGroupInformation.isSecurityEnabled();
+	}
 	@Override
 	public void init(String serviceName, String appId, String propertyPrefix, Configuration config) {
 	    super.init(serviceName, appId, propertyPrefix, config);
@@ -115,7 +121,7 @@ public class RangerAdminRESTClient extends AbstractRangerAdminClient {
 		}
 
 		final ServicePolicies      ret;
-		final boolean              isSecureMode = isAuthenticationEnabled();
+		final boolean              isSecureMode = shouldUseSecureMode();
 		final Cookie               sessionId    = this.sessionId;
 		final ClientResponse       response;
 
@@ -199,7 +205,7 @@ public class RangerAdminRESTClient extends AbstractRangerAdminClient {
 		}
 
 		final RangerRoles ret;
-		final boolean isSecureMode      = isAuthenticationEnabled();
+		final boolean isSecureMode      = shouldUseSecureMode();
 		final Cookie  sessionId         = this.sessionId;
 		final ClientResponse response;
 
@@ -283,7 +289,8 @@ public class RangerAdminRESTClient extends AbstractRangerAdminClient {
 		RangerRole ret = null;
 
 		final ClientResponse response;
-		boolean isSecureMode = isAuthenticationEnabled();
+		boolean isSecureMode = shouldUseSecureMode();
+//		boolean isSecureMode = isAuthenticationEnabled();
 		String relativeURL = RangerRESTUtils.REST_URL_SERVICE_CREATE_ROLE;
 		Cookie sessionId = this.sessionId;
 
@@ -338,7 +345,7 @@ public class RangerAdminRESTClient extends AbstractRangerAdminClient {
 		}
 
 		final ClientResponse response;
-		boolean isSecureMode = isAuthenticationEnabled();
+		boolean isSecureMode = shouldUseSecureMode();
 		Cookie sessionId = this.sessionId;
 
 		Map<String, String> queryParams = new HashMap<String, String>();
@@ -393,7 +400,9 @@ public class RangerAdminRESTClient extends AbstractRangerAdminClient {
 		List<String> ret = null;
 		String emptyString = "";
 		final ClientResponse response;
-		boolean isSecureMode = isAuthenticationEnabled();
+//		boolean isSecureMode = isAuthenticationEnabled();
+		boolean isSecureMode = shouldUseSecureMode();
+		
 		String relativeURL = RangerRESTUtils.REST_URL_SERVICE_GET_USER_ROLES + execUser;
 		Cookie sessionId = this.sessionId;
 
@@ -448,7 +457,8 @@ public class RangerAdminRESTClient extends AbstractRangerAdminClient {
 		List<String> ret = null;
 		String emptyString = "";
 		final ClientResponse response;
-		boolean isSecureMode = isAuthenticationEnabled();
+//		boolean isSecureMode = isAuthenticationEnabled();
+		boolean isSecureMode = shouldUseSecureMode();
 		String relativeURL = RangerRESTUtils.REST_URL_SERVICE_GET_ALL_ROLES;
 		Cookie sessionId = this.sessionId;
 
@@ -506,7 +516,8 @@ public class RangerAdminRESTClient extends AbstractRangerAdminClient {
 
 		RangerRole ret = null;
 		final ClientResponse response;
-		boolean isSecureMode = isAuthenticationEnabled();
+//		boolean isSecureMode = isAuthenticationEnabled();
+		boolean isSecureMode = shouldUseSecureMode();
 		String relativeURL = RangerRESTUtils.REST_URL_SERVICE_GET_ROLE_INFO + roleName;
 		Cookie sessionId = this.sessionId;
 
@@ -564,7 +575,8 @@ public class RangerAdminRESTClient extends AbstractRangerAdminClient {
 		}
 
 		final ClientResponse response;
-		boolean isSecureMode = isAuthenticationEnabled();
+//		boolean isSecureMode = isAuthenticationEnabled();
+		boolean isSecureMode = shouldUseSecureMode();
 		String relativeURL = RangerRESTUtils.REST_URL_SERVICE_GRANT_ROLE + serviceNameUrlParam;
 		Cookie sessionId = this.sessionId;
 
@@ -613,7 +625,8 @@ public class RangerAdminRESTClient extends AbstractRangerAdminClient {
 
 		final ClientResponse response;
 		
-		boolean isSecureMode = isAuthenticationEnabled();
+//		boolean isSecureMode = isAuthenticationEnabled();
+		boolean isSecureMode = shouldUseSecureMode();
 		String relativeURL = RangerRESTUtils.REST_URL_SERVICE_REVOKE_ROLE + serviceNameUrlParam;
 		Cookie sessionId = this.sessionId;
 
@@ -661,7 +674,8 @@ public class RangerAdminRESTClient extends AbstractRangerAdminClient {
 		}
 
 		final ClientResponse response;
-		boolean isSecureMode = isAuthenticationEnabled();
+//		boolean isSecureMode = isAuthenticationEnabled();
+		boolean isSecureMode = shouldUseSecureMode();
 		Cookie sessionId = this.sessionId;
 
 		Map<String, String> queryParams = new HashMap<String, String>();
@@ -714,7 +728,8 @@ public class RangerAdminRESTClient extends AbstractRangerAdminClient {
 		}
 
 		final ClientResponse response;
-		boolean isSecureMode = isAuthenticationEnabled();
+//		boolean isSecureMode = isAuthenticationEnabled();
+		boolean isSecureMode = shouldUseSecureMode();
 		Cookie sessionId = this.sessionId;
 
 		Map<String, String> queryParams = new HashMap<String, String>();
@@ -788,7 +803,8 @@ public class RangerAdminRESTClient extends AbstractRangerAdminClient {
 		}
 
 		final ServiceTags ret;
-		final boolean isSecureMode = isAuthenticationEnabled();
+//		final boolean isSecureMode = isAuthenticationEnabled();
+		final boolean isSecureMode = shouldUseSecureMode();
 		final ClientResponse response;
 		final Cookie sessionId = this.sessionId;
 
@@ -867,7 +883,8 @@ public class RangerAdminRESTClient extends AbstractRangerAdminClient {
 
 		List<String> ret = null;
 		String emptyString = "";
-		boolean isSecureMode = isAuthenticationEnabled();
+//		boolean isSecureMode = isAuthenticationEnabled();
+		boolean isSecureMode = shouldUseSecureMode();
 		Cookie sessionId = this.sessionId;
 
 		Map<String, String> queryParams = new HashMap<String, String>();
@@ -917,7 +934,8 @@ public class RangerAdminRESTClient extends AbstractRangerAdminClient {
 		}
 
 		final RangerUserStore ret;
-		final boolean isSecureMode = isAuthenticationEnabled();
+//		final boolean isSecureMode = isAuthenticationEnabled();
+		final boolean isSecureMode = shouldUseSecureMode();
 		final ClientResponse response;
 		final Cookie sessionId = this.sessionId;
 

@@ -1,3 +1,21 @@
+# 打包说明
+```bash
+需要使用jdk1.8
+JAVA_HOME=/opt/apps/jdk1.8.0_261
+mvn -Pall clean 
+# 出全量包
+mvn -Pall -DskipTests=true clean compile package install
+# 只出  kafka插件包
+mvn -pl :ranger-kafka-plugin -am -Pranger-kafka-plugin -DskipTests=true clean compile package install
+# 出的包在target目录
+```
+
+与官方仓库同步
+```bash
+git remote add upstream git@github.com:apache/ranger.git
+git fetch upstream --tags
+```
+
 <!--
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file

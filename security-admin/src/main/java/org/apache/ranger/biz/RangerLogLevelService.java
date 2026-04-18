@@ -68,9 +68,9 @@ public class RangerLogLevelService {
     private String setLogbackLogLevel(String loggerName, String logLevel) {
         try {
             Level  level  = validateAndParseLogLevel(logLevel);
-            Logger logger = getLogger(loggerName);
+            ch.qos.logback.classic.Logger logger = getLogger(loggerName);
 
-            logger.setLevel(level);
+            //logger.setLevel(level);
 
             LOG.info("Successfully set log level for logger '{}' to '{}'", loggerName, level);
 
@@ -82,7 +82,7 @@ public class RangerLogLevelService {
         }
     }
 
-    private static Logger getLogger(String loggerName) {
+    private static ch.qos.logback.classic.Logger getLogger(String loggerName) {
         ILoggerFactory iLoggerFactory = LoggerFactory.getILoggerFactory();
 
         if (!(iLoggerFactory instanceof LoggerContext)) {

@@ -1,0 +1,2 @@
+export JAVA_HOME=/opt/apps/jdk-11
+export PATH="/home/chengsheng/.npm-global/bin:/home/chengsheng/.opencode/bin:/opt/apps/miniforge3/envs/py312/bin:/opt/apps/miniforge3/condabin:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games:/sbin:/usr/sbin:${JAVA_HOME}/bin:/opt/apps/apache-maven-3.9.9/bin:/opt/apps/gradle-8.5/bin:/opt/apps/node-v24.13.0-linux-x64/bin:/opt/apps/miniforge3/bin:/opt/app/clojure/bin:/home/chengsheng/.npm-global"
